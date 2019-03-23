@@ -1,18 +1,18 @@
 <template>
   <div class="wrapper">
 	<app-header></app-header>
-	<app-login></app-login>
+	<app-user></app-user>
   </div>
 </template>
 
 <script>
-import Header from '../components/home/Header.vue';
-import Login from '../components/home/Login.vue';
+import Header from '../components/login/Header.vue';
+import User from '../components/login/User.vue';
 
 export default {
 	components: {
 		appHeader: Header,
-		appLogin: Login,
+		appUser: User,
 	}
 }
 </script>

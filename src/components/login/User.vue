@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="user-wrapper">
 		<form action="">
 			<div class="wrap-username">
 				<input type="username" id="username" v-model="username" required/>
@@ -53,20 +53,20 @@ export default {
 </script>
 
 <style scoped>
+.user-wrapper {
+	margin-top: 85px;
+}
+
 .wrap-username {
 	position: relative;
-	width: 390px;
 	margin-bottom: 35px;
-	margin-top: 85px;
 	position: relative;
 	height: 44px;
 	line-height: 44px;
 }
 
 .wrap-password {
-	width: 100%;
 	position: relative;
-	width: 390px;
 	margin-bottom: 35px;
 	position: relative;
 	height: 44px;

@@ -1,18 +1,18 @@
 <template>
 	<div>
 		<h1>Grid component</h1>
-		<div class="sign-out-button" @click="signOut"></div>
+		<div class="sign-out-button" @click="signOut">Sign out</div>
 	</div>
 </template>
 
 <script>
-	export default {
-		methods: {
-			signOut() {
-				this.$router.push('/');
-			}
+export default {
+	methods: {
+		signOut() {
+			this.$router.push('/login');
 		}
 	}
+}
 </script>
 
 <style scoped>
@@ -41,7 +41,6 @@
 
 .sign-out-button:hover {
 	background: black;
-	color: white;
 	box-shadow: 0 10px 30px 0px black;
 	-moz-box-shadow: 0 10px 30px 0px black;
 	-webkit-box-shadow: 0 10px 30px 0px black;

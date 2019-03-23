@@ -1,7 +1,8 @@
-import Home from './components/Home.vue';
+import Login from './components/Login.vue';
 import Grid from './components/Grid.vue';
 
 export const routes = [
-	{ path: '', component: Home },
-	{ path: '/grid', component: Grid }
+	{ path: '/login', component: Login },
+	{ path: '/grid', component: Grid },
+	{ path: '*', redirect: '/login'}
 ];
