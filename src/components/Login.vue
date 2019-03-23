@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
-	<app-header></app-header>
-	<app-user></app-user>
+		<app-header></app-header>
+		<app-user></app-user>
   </div>
 </template>
 

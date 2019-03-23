@@ -17,8 +17,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  align-items: center;
-  min-height: 100vh;
+  padding: 30px 0;
 }
 </style>
