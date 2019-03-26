@@ -6,6 +6,7 @@ import { routes } from './routes';
 import '@progress/kendo-ui'
 import '@progress/kendo-theme-default/dist/all.css'
 import { Grid } from '@progress/kendo-vue-grid'
+import { process, filterBy } from '@progress/kendo-data-query'
 
 new Vue({
    el: '#app' //id of the container
