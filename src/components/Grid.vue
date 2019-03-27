@@ -18,7 +18,7 @@
 
 <script>
 import Vue from 'vue'
-import { process, filterBy } from '@progress/kendo-data-query';
+import { process, filterBy } from '@progress/kendo-data-query'
 
 export default {
 	data() {
@@ -33,13 +33,15 @@ export default {
 				{CategoryID: 7, CategoryName: 'Produce', Descriptions: 'Dried fruit and bean curd'},
 				{CategoryID: 8, CategoryName: 'Seafood', Descriptions: 'Seaweed and fish'}
 			],
-			cellTemplate: Vue.component("template-component", {
-					props: {
-						dataItem: Object
+			cellTemplate: Vue.component("celltemplate-component", {
+				props: {
+					dataItem: Object
 				},
 
-				template: `<kendo-grid 
+				template: `<kendo-grid
+							:style="{height: 'auto'}" 
 							:data-items="getFilteredProducts"
+							@remove="remove"
                      		:columns="columns">
                				</kendo-grid>`,
 
@@ -214,10 +216,40 @@ export default {
 							"Description": "Seaweed and fish"
 						}
 					}];
+					var CommandCell = Vue.component("commandcelltemplate-component", {
+						props: {
+							field: String,
+							dataItem: Object,
+							format: String,
+							className: String,
+							columnIndex: Number,
+							columnsCount: Number,
+							rowType: String,
+							level: Number,
+							expanded: Boolean,
+							editor: String
+						},
+
+						template: ` <td v-if="!dataItem['inEdit']">
+										<button
+											class="k-button k-grid-remove-command"
+											@click="removeHandler">
+											Remove
+										</button>
+									</td>`,
+
+						methods: {
+							removeHandler: function() {
+								this.$emit('remove', this.dataItem);
+								console.log('removeHandler: ', this.dataItem);
+							}
+						}
+					});
 					return {
 						columns: [
 							{ field: 'ProductID', title: 'ID', width: '50px' },
-							{ field: 'ProductName', title: 'Name' }
+							{ field: 'ProductName', title: 'Name' },
+							{ cell: CommandCell, width: '180px' }
 						],
 						products: products
 					}
@@ -227,6 +259,32 @@ export default {
 						const result = filterBy(this.products, {field: 'Category.CategoryID', operator: 'eq', value: this.dataItem.CategoryID});
 
 						return result;
+					}
+				},
+				methods: {
+					update(data, item, remove) {
+						let updated;
+						let index = data.findIndex(p => item.ProductID && p.ProductID === item.ProductID);
+						if (index >= 0) {
+							updated = Object.assign({}, item);
+							data[index] = updated;
+					} else {
+						let id = 1;
+						data.forEach(p => { if (p.ProductID) { id = Math.max(p.ProductID + 1, id); } });
+						updated = Object.assign({}, item, { ProductID: id });
+						data.unshift(updated);
+						index = 0;
+					}
+
+					if (remove) {
+						data = data.splice(index, 1);
+					}
+						return data[index];
+					},
+					remove(e) {
+						console.log('prosledjeno u remove: ', e);
+						this.update(this.products, e.dataItem, true);
+						this.products = this.products.slice();
 					}
 				}
 			}),

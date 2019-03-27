@@ -5,8 +5,7 @@ import { routes } from './routes';
 
 import '@progress/kendo-ui'
 import '@progress/kendo-theme-default/dist/all.css'
-import { Grid } from '@progress/kendo-vue-grid'
-import { process, filterBy } from '@progress/kendo-data-query'
+import { Grid, GridToolbar, GridNoRecords } from '@progress/kendo-vue-grid'
 
 new Vue({
    el: '#app' //id of the container
@@ -15,6 +14,8 @@ new Vue({
 Vue.use(VueRouter);
 
 Vue.component('kendo-grid', Grid);
+Vue.component('grid-toolbar', GridToolbar);
+Vue.component('grid-norecords', GridNoRecords);
 
 const router = new VueRouter({
 	routes,
