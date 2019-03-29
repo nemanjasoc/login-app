@@ -1,7 +1,7 @@
 <template>
 	<div style="width:100%">
 		<div class="top-container">
-			<h1>Grid component</h1>
+			<h1>Edit your data</h1>
 			<div class="sign-out-button" @click="signOut">Sign out</div>
 		</div>
 
@@ -12,7 +12,8 @@
 			:detail="cellTemplate"
 			:columns="columns"
 			@expandchange="expandChange"
-			:expand-field="'expanded'"/>
+			:expand-field="'expanded'">
+		</kendo-grid>
 	</div>
 </template>
 
@@ -41,22 +42,25 @@ export default {
 				template: `<kendo-grid
 							:style="{height: 'auto'}" 
 							:data-items="getFilteredProducts"
+							:edit-field="'inEdit'"
+							@edit="edit"
 							@remove="remove"
-                     		:columns="columns">
-               				</kendo-grid>`,
+							@save="save"
+							@cancel="cancel"
+							@itemchange="itemChange"
+							:columns="columns">
+								<grid-norecords>
+									There is no data available custom
+								</grid-norecords>
+							</kendo-grid>`,
 
 				data () {
 					var products = [{
 						"ProductID": 1,
 						"ProductName": "Chai",
-						"SupplierID": 1,
-						"CategoryID": 1,
-						"QuantityPerUnit": "10 boxes x 20 bags",
-						"UnitPrice": 18.0000,
 						"UnitsInStock": 39,
-						"UnitsOnOrder": 0,
-						"ReorderLevel": 10,
 						"Discontinued": false,
+						"FirstOrderedOn": new Date(1996, 8, 20),
 						"Category": {
 							"CategoryID": 1,
 							"CategoryName": "Beverages",
@@ -66,14 +70,9 @@ export default {
 					{
 						"ProductID": 2,
 						"ProductName": "Chang",
-						"SupplierID": 1,
-						"CategoryID": 1,
-						"QuantityPerUnit": "24 - 12 oz bottles",
-						"UnitPrice": 19.0000,
 						"UnitsInStock": 17,
-						"UnitsOnOrder": 40,
-						"ReorderLevel": 25,
 						"Discontinued": false,
+						"FirstOrderedOn": new Date(1996, 7, 12),
 						"Category": {
 							"CategoryID": 1,
 							"CategoryName": "Beverages",
@@ -83,14 +82,9 @@ export default {
 					{
 						"ProductID": 3,
 						"ProductName": "Aniseed Syrup",
-						"SupplierID": 1,
-						"CategoryID": 2,
-						"QuantityPerUnit": "12 - 550 ml bottles",
-						"UnitPrice": 10.0000,
 						"UnitsInStock": 13,
-						"UnitsOnOrder": 70,
-						"ReorderLevel": 25,
 						"Discontinued": false,
+						"FirstOrderedOn": new Date(1996, 8, 26),
 						"Category": {
 							"CategoryID": 2,
 							"CategoryName": "Condiments",
@@ -100,14 +94,9 @@ export default {
 					{
 						"ProductID": 4,
 						"ProductName": "Chef Anton's Cajun Seasoning",
-						"SupplierID": 2,
-						"CategoryID": 2,
-						"QuantityPerUnit": "48 - 6 oz jars",
-						"UnitPrice": 22.0000,
 						"UnitsInStock": 53,
-						"UnitsOnOrder": 0,
-						"ReorderLevel": 0,
 						"Discontinued": false,
+						"FirstOrderedOn": new Date(1996, 9, 19),
 						"Category": {
 							"CategoryID": 2,
 							"CategoryName": "Condiments",
@@ -216,7 +205,8 @@ export default {
 							"Description": "Seaweed and fish"
 						}
 					}];
-					var CommandCell = Vue.component("commandcelltemplate-component", {
+
+					var CommandCell = Vue.component("commandcell-component", {
 						props: {
 							field: String,
 							dataItem: Object,
@@ -230,25 +220,55 @@ export default {
 							editor: String
 						},
 
-						template: ` <td v-if="!dataItem['inEdit']">
+						template: `<td v-if="!dataItem['inEdit']">
+										<button
+											class="k-primary k-button k-grid-edit-command"
+											@click="editHandler">
+											Edit
+										</button>
 										<button
 											class="k-button k-grid-remove-command"
 											@click="removeHandler">
 											Remove
 										</button>
+									</td>
+									<td v-else>
+										<button
+											class="k-button k-grid-save-command"
+											@click="addUpdateHandler">
+											{{this.dataItem.ProductID? 'Update' : 'Add'}}
+										</button>
+										<button
+											class="k-button k-grid-cancel-command"
+											@click="cancelDiscardHandler">
+											{{this.dataItem.ProductID? 'Cancel' : 'Discard'}}
+										</button>
 									</td>`,
 
 						methods: {
+							editHandler: function() {
+								this.$emit('edit', this.dataItem);
+								console.log("editHandler: ", this.dataItem); 
+							},
 							removeHandler: function() {
 								this.$emit('remove', this.dataItem);
-								console.log('removeHandler: ', this.dataItem);
-							}
+								console.log('removeHandler: ', this.dataItem); 
+							},
+							addUpdateHandler: function() {
+								this.$emit('save', this.dataItem);
+								console.log('addUpdateHandler', this.dataItem); 
+							},
+							cancelDiscardHandler: function() {
+								this.$emit('cancel', this.dataItem);
+								console.log("cancelDiscardHandler: ", this.dataItem); 
+							},
 						}
 					});
 					return {
 						columns: [
-							{ field: 'ProductID', title: 'ID', width: '50px' },
+							{ field: 'ProductID', editable: false, title: 'ID', width: '50px' },
 							{ field: 'ProductName', title: 'Name' },
+							{ field: 'FirstOrderedOn', editor: 'date', title: 'First Ordered', format: '{0:d}' },
 							{ cell: CommandCell, width: '180px' }
 						],
 						products: products
@@ -257,34 +277,78 @@ export default {
 				computed: {
 					getFilteredProducts() {
 						const result = filterBy(this.products, {field: 'Category.CategoryID', operator: 'eq', value: this.dataItem.CategoryID});
-
+						console.log("getFilteredProducts result: ", result);
 						return result;
+					},
+					hasItemsInEdit() {
+						return this.products.filter(p => p.inEdit).length > 0;
 					}
 				},
 				methods: {
 					update(data, item, remove) {
+						console.log('prosledjeno u update, data, item, remove: ', data, item, remove);
 						let updated;
 						let index = data.findIndex(p => item.ProductID && p.ProductID === item.ProductID);
 						if (index >= 0) {
 							updated = Object.assign({}, item);
 							data[index] = updated;
-					} else {
-						let id = 1;
-						data.forEach(p => { if (p.ProductID) { id = Math.max(p.ProductID + 1, id); } });
-						updated = Object.assign({}, item, { ProductID: id });
-						data.unshift(updated);
-						index = 0;
-					}
+						} else {
+							let id = 1;
+							data.forEach(p => { if (p.ProductID) { id = Math.max(p.ProductID + 1, id); } });
+							updated = Object.assign({}, item, { ProductID: id });
+							data.unshift(updated);
+							index = 0;
+						}
 
-					if (remove) {
-						data = data.splice(index, 1);
-					}
+						if (remove) {
+							data = data.splice(index, 1);
+						}
 						return data[index];
 					},
 					remove(e) {
 						console.log('prosledjeno u remove: ', e);
+						e.dataItem.inEdit = undefined;
 						this.update(this.products, e.dataItem, true);
+						this.update(this.updatedData, e.dataItem, true);
 						this.products = this.products.slice();
+					},
+					itemChange: function (e) {
+						console.log("prosledjeno u itemChang: ", e)
+						if (e.dataItem.ProductID) {
+							let item = this.products.find(p => p.ProductID === e.dataItem.ProductID);
+							let index = this.products.findIndex(p => p.ProductID === item.ProductID);
+							Vue.set(item, e.field, e.value);
+							console.log("itemChange set: ", item, e.field, e.value)
+						} else {
+							Vue.set(e.dataItem, e.field, e.value);
+							console.log(" else itemChange set: ", e.dataItem, e.field, e.value)
+						}
+					},
+					edit: function (e) {
+						console.log("prosledjeno u edit: ", e)
+						Vue.set(e.dataItem, 'inEdit', true);
+						console.log("edit set: ", e.dataItem, 'inEdit', true)
+					},
+					save: function(e) {
+						console.log("prosledjeno u save: ", e)
+						Vue.set(e.dataItem, 'inEdit', undefined);
+						let item = this.products.find(p => p.ProductID === e.dataItem.ProductID);
+						let index = this.products.findIndex(p => p.ProductID === item.ProductID);
+
+						Vue.set(this.products, index, this.update(this.products.slice(), item));
+						Vue.set(this.products[index], 'inEdit', undefined);
+					},
+					cancel(e) {
+						console.log("prosledjeno u cancel: ", e)
+						if (e.dataItem.ProductID) {
+							let originalItem = this.products.find(p => p.ProductID === e.dataItem.ProductID);
+							let index = this.products.findIndex(p => p.ProductID === originalItem.ProductID);
+
+							Vue.set(originalItem, 'inEdit', undefined);
+							Vue.set(this.products, index, originalItem);
+						} else {
+							this.update(this.products, e.dataItem, true);
+						}
 					}
 				}
 			}),
