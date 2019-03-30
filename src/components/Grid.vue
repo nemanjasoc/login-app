@@ -10,9 +10,18 @@
 			:style="{height: '500px', width: '100%'}"
 			:data-items="categories"
 			:detail="cellTemplate"
+			:edit-field="'inEdit'"
+			@edit="edit"
+			@remove="remove"
+			@save="save"
+			@cancel="cancel"
+			@itemchange="itemChange"
 			:columns="columns"
 			@expandchange="expandChange"
 			:expand-field="'expanded'">
+				<grid-norecords>
+					There is no data available custom
+				</grid-norecords>
 		</kendo-grid>
 	</div>
 </template>
@@ -23,6 +32,61 @@ import { process, filterBy } from '@progress/kendo-data-query'
 
 export default {
 	data() {
+		const OuterCommandCell = Vue.component("outercommandcell-component", {
+			props: {
+				field: String,
+				dataItem: Object,
+				format: String,
+				className: String,
+				columnIndex: Number,
+				columnsCount: Number,
+				rowType: String,
+				level: Number,
+				expanded: Boolean,
+				editor: String
+			},
+
+			template: ` <td v-if="!dataItem['inEdit']">
+							<button
+								class="k-primary k-button k-grid-edit-command"
+								@click="outerEditHandler">
+								Edit
+							</button>
+							<button
+								class="k-button k-grid-remove-command"
+								@click="outerRemoveHandler">
+								Remove
+							</button>
+						</td>
+						<td v-else>
+							<button
+								class="k-button k-grid-save-command"
+								@click="outerAddUpdateHandler">
+								{{this.dataItem.CategoryID? 'Update' : 'Add'}}
+							</button>
+							<button
+								class="k-button k-grid-cancel-command"
+								@click="outerCancelDiscardHandler">
+								{{this.dataItem.CategoryID? 'Cancel' : 'Discard'}}
+							</button>
+						</td>`,
+
+			methods: {
+				outerEditHandler: function() {
+					this.$emit('edit', this.dataItem);
+				},
+				outerRemoveHandler: function() {
+					this.$emit('remove', this.dataItem);
+				},
+				outerAddUpdateHandler: function() {
+					this.$emit('save', this.dataItem);
+				},
+				outerCancelDiscardHandler: function() {
+					this.$emit('cancel', this.dataItem);
+				}
+			}
+		});
+
 		return {
 			categories: [
 				{CategoryID: 1, CategoryName: 'Beverages', Descriptions: 'Soft drinks, coffees, teas, beers, and ales'},
@@ -206,7 +270,7 @@ export default {
 						}
 					}];
 
-					var CommandCell = Vue.component("commandcell-component", {
+					var InnerCommandCell = Vue.component("innercommandcell-component", {
 						props: {
 							field: String,
 							dataItem: Object,
@@ -223,44 +287,44 @@ export default {
 						template: `<td v-if="!dataItem['inEdit']">
 										<button
 											class="k-primary k-button k-grid-edit-command"
-											@click="editHandler">
+											@click="innerEditHandler">
 											Edit
 										</button>
 										<button
 											class="k-button k-grid-remove-command"
-											@click="removeHandler">
+											@click="innerRemoveHandler">
 											Remove
 										</button>
 									</td>
 									<td v-else>
 										<button
 											class="k-button k-grid-save-command"
-											@click="addUpdateHandler">
+											@click="innerAddUpdateHandler">
 											{{this.dataItem.ProductID? 'Update' : 'Add'}}
 										</button>
 										<button
 											class="k-button k-grid-cancel-command"
-											@click="cancelDiscardHandler">
+											@click="innerCancelDiscardHandler">
 											{{this.dataItem.ProductID? 'Cancel' : 'Discard'}}
 										</button>
 									</td>`,
 
 						methods: {
-							editHandler: function() {
+							innerEditHandler: function() {
 								this.$emit('edit', this.dataItem);
-								console.log("editHandler: ", this.dataItem); 
+								console.log("innerEditHandler: ", this.dataItem); 
 							},
-							removeHandler: function() {
+							innerRemoveHandler: function() {
 								this.$emit('remove', this.dataItem);
-								console.log('removeHandler: ', this.dataItem); 
+								console.log('innerRemoveHandler: ', this.dataItem); 
 							},
-							addUpdateHandler: function() {
+							innerAddUpdateHandler: function() {
 								this.$emit('save', this.dataItem);
-								console.log('addUpdateHandler', this.dataItem); 
+								console.log('innerAddUpdateHandler', this.dataItem); 
 							},
-							cancelDiscardHandler: function() {
+							innerCancelDiscardHandler: function() {
 								this.$emit('cancel', this.dataItem);
-								console.log("cancelDiscardHandler: ", this.dataItem); 
+								console.log("innerCancelDiscardHandler: ", this.dataItem); 
 							},
 						}
 					});
@@ -269,7 +333,7 @@ export default {
 							{ field: 'ProductID', editable: false, title: 'ID', width: '50px' },
 							{ field: 'ProductName', title: 'Name' },
 							{ field: 'FirstOrderedOn', editor: 'date', title: 'First Ordered', format: '{0:d}' },
-							{ cell: CommandCell, width: '180px' }
+							{ cell: InnerCommandCell, width: '180px' }
 						],
 						products: products
 					}
@@ -309,7 +373,6 @@ export default {
 						console.log('prosledjeno u remove: ', e);
 						e.dataItem.inEdit = undefined;
 						this.update(this.products, e.dataItem, true);
-						this.update(this.updatedData, e.dataItem, true);
 						this.products = this.products.slice();
 					},
 					itemChange: function (e) {
@@ -354,16 +417,86 @@ export default {
 			}),
 			columns: [
 				{ field: 'CategoryID', title: 'ID', width: '50px' },
-				{ field: 'CategoryName', title: 'Name' }
+				{ field: 'CategoryName', title: 'Name' },
+				{ cell: OuterCommandCell, width: '180px' }
 			]
 		};
 	},
+	computed: {
+		hasItemsInEdit() {
+			return this.categories.filter(p => p.inEdit).length > 0;
+		}
+    },
 	methods: {
 		signOut() {
 			this.$router.push('/login');
 		},
 		expandChange(event) {
 			Vue.set(event.dataItem, event.target.$props.expandField, event.value);
+		},
+		update(data, item, remove) {
+			console.log('prosledjeno u update, data, item, remove: ', data, item, remove);
+			let updated;
+			let index = data.findIndex(p => item.CategoryID && p.CategoryID === item.CategoryID);
+			if (index >= 0) {
+				updated = Object.assign({}, item);
+				data[index] = updated;
+			} else {
+				let id = 1;
+				data.forEach(p => { if (p.CategoryID) { id = Math.max(p.CategoryID + 1, id); } });
+				updated = Object.assign({}, item, { CategoryID: id });
+				data.unshift(updated);
+				index = 0;
+			}
+
+			if (remove) {
+				data = data.splice(index, 1);
+			}
+			return data[index];
+		},
+		remove(e) {
+			console.log('prosledjeno u remove: ', e);
+			e.dataItem.inEdit = undefined;
+			this.update(this.categories, e.dataItem, true);
+			this.categories = this.categories.slice();
+		},
+		itemChange: function (e) {
+			console.log("prosledjeno u itemChang: ", e)
+			if (e.dataItem.CategoryID) {
+				let item = this.categories.find(p => p.CategoryID === e.dataItem.CategoryID);
+				let index = this.categories.findIndex(p => p.CategoryID === item.CategoryID);
+				Vue.set(item, e.field, e.value);
+				console.log("itemChange set: ", item, e.field, e.value)
+			} else {
+				Vue.set(e.dataItem, e.field, e.value);
+				console.log(" else itemChange set: ", e.dataItem, e.field, e.value)
+			}
+		},
+		edit: function (e) {
+			console.log("prosledjeno u edit: ", e)
+			Vue.set(e.dataItem, 'inEdit', true);
+			console.log("edit set: ", e.dataItem, 'inEdit', true)
+		},
+		save: function(e) {
+			console.log("prosledjeno u save: ", e)
+			Vue.set(e.dataItem, 'inEdit', undefined);
+			let item = this.categories.find(p => p.CategoryID === e.dataItem.CategoryID);
+			let index = this.categories.findIndex(p => p.CategoryID === item.CategoryID);
+
+			Vue.set(this.categories, index, this.update(this.categories.slice(), item));
+			Vue.set(this.categories[index], 'inEdit', undefined);
+		},
+		cancel(e) {
+			console.log("prosledjeno u cancel: ", e)
+			if (e.dataItem.CategoryID) {
+				let originalItem = this.categories.find(p => p.CategoryID === e.dataItem.CategoryID);
+				let index = this.categories.findIndex(p => p.CategoryID === originalItem.CategoryID);
+
+				Vue.set(originalItem, 'inEdit', undefined);
+				Vue.set(this.categories, index, originalItem);
+			} else {
+				this.update(this.categories, e.dataItem, true);
+			}
 		}
 	}
 }
