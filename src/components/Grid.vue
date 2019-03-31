@@ -7,7 +7,7 @@
 
 		<kendo-grid
 				ref="grid"
-				:style="{height: '500px', width: '100%'}"
+				:style="{height: 'auto', width: '100%'}"
 				:data-items="categories"
 				:detail="cellTemplate"
 				:edit-field="'inEdit'"
@@ -45,6 +45,7 @@ import { process, filterBy } from '@progress/kendo-data-query'
 
 export default {
 	data() {
+		/*OUTER*/
 		const OuterDropDownCell = Vue.component('outerdropdowncell-component', {
 			props: {
 				field: String,
@@ -70,7 +71,7 @@ export default {
 					this.$emit('change', e, e.target.value);
 				}
 			}
-		});
+		});//OuterDropDownCell
 
 		const OuterCommandCell = Vue.component("outercommandcell-component", {
 			props: {
@@ -125,19 +126,9 @@ export default {
 					this.$emit('cancel', this.dataItem);
 				}
 			}
-		});
-
+		});//OuterCommandCell
+		/*INNER*/
 		return {
-			categories: [
-				{CategoryID: 1, CategoryName: 'Beverages', Descriptions: 'Soft drinks, coffees, teas, beers, and ales'},
-				{CategoryID: 2, CategoryName: 'Condiments', Descriptions: 'Sweet and savory sauces, relishes, spreads, and seasonings'},
-				{CategoryID: 3, CategoryName: 'Confections', Descriptions: 'Desserts, candies, and sweet breads'},
-				{CategoryID: 4, CategoryName: 'Dairy Products', Descriptions: 'Cheeses'},
-				{CategoryID: 5, CategoryName: 'Grains/Cereals', Descriptions: 'Breads, crackers, pasta, and cereal'},
-				{CategoryID: 6, CategoryName: 'Meat/Poultry', Descriptions: 'Prepared meats'},
-				{CategoryID: 7, CategoryName: 'Produce', Descriptions: 'Dried fruit and bean curd'},
-				{CategoryID: 8, CategoryName: 'Seafood', Descriptions: 'Seaweed and fish'}
-			],
 			cellTemplate: Vue.component("celltemplate-component", {
 				props: {
 					dataItem: Object
@@ -153,162 +144,197 @@ export default {
 							@cancel="cancel"
 							@itemchange="itemChange"
 							:columns="columns">
+								<grid-toolbar>
+									<button title="Add new"
+										class="k-button k-primary"
+										@click='insert' >
+										Add new
+									</button>
+									<button v-if="hasItemsInEdit"
+										title="Cancel current changes"
+										class="k-button"
+										@click="cancelChanges">
+										Cancel current changes
+									</button>
+								</grid-toolbar>
 								<grid-norecords>
 									There is no data available custom
 								</grid-norecords>
 							</kendo-grid>`,
 
 				data () {
-					var products = [{
-						"ProductID": 1,
-						"ProductName": "Chai",
-						"UnitsInStock": 39,
-						"Discontinued": false,
-						"FirstOrderedOn": new Date(1996, 8, 20),
-						"Category": {
+					var products = [
+						{
+							"ProductID": 1,
+							"ProductName": "Chai",
+							"SupplierID": 1,
 							"CategoryID": 1,
-							"CategoryName": "Beverages",
-							"Description": "Soft drinks, coffees, teas, beers, and ales"
-						}
-					},
-					{
-						"ProductID": 2,
-						"ProductName": "Chang",
-						"UnitsInStock": 17,
-						"Discontinued": false,
-						"FirstOrderedOn": new Date(1996, 7, 12),
-						"Category": {
+							"QuantityPerUnit": "10 boxes x 20 bags",
+							"UnitPrice": 18.0000,
+							"UnitsInStock": 39,
+							"UnitsOnOrder": 0,
+							"ReorderLevel": 10,
+							"Discontinued": false,
+							"Category": {
+								"CategoryID": 1,
+								"CategoryName": "Beverages",
+								"Description": "Soft drinks, coffees, teas, beers, and ales"
+							}
+						},
+						{
+							"ProductID": 2,
+							"ProductName": "Chang",
+							"SupplierID": 1,
 							"CategoryID": 1,
-							"CategoryName": "Beverages",
-							"Description": "Soft drinks, coffees, teas, beers, and ales"
-						}
-					},
-					{
-						"ProductID": 3,
-						"ProductName": "Aniseed Syrup",
-						"UnitsInStock": 13,
-						"Discontinued": false,
-						"FirstOrderedOn": new Date(1996, 8, 26),
-						"Category": {
+							"QuantityPerUnit": "24 - 12 oz bottles",
+							"UnitPrice": 19.0000,
+							"UnitsInStock": 17,
+							"UnitsOnOrder": 40,
+							"ReorderLevel": 25,
+							"Discontinued": false,
+							"Category": {
+								"CategoryID": 1,
+								"CategoryName": "Beverages",
+								"Description": "Soft drinks, coffees, teas, beers, and ales"
+							}
+						},
+						{
+							"ProductID": 3,
+							"ProductName": "Aniseed Syrup",
+							"SupplierID": 1,
 							"CategoryID": 2,
-							"CategoryName": "Condiments",
-							"Description": "Sweet and savory sauces, relishes, spreads, and seasonings"
-						}
-					},
-					{
-						"ProductID": 4,
-						"ProductName": "Chef Anton's Cajun Seasoning",
-						"UnitsInStock": 53,
-						"Discontinued": false,
-						"FirstOrderedOn": new Date(1996, 9, 19),
-						"Category": {
+							"QuantityPerUnit": "12 - 550 ml bottles",
+							"UnitPrice": 10.0000,
+							"UnitsInStock": 13,
+							"UnitsOnOrder": 70,
+							"ReorderLevel": 25,
+							"Discontinued": false,
+							"Category": {
+								"CategoryID": 2,
+								"CategoryName": "Condiments",
+								"Description": "Sweet and savory sauces, relishes, spreads, and seasonings"
+							}
+						},
+						{
+							"ProductID": 4,
+							"ProductName": "Chef Anton's Cajun Seasoning",
+							"SupplierID": 2,
 							"CategoryID": 2,
-							"CategoryName": "Condiments",
-							"Description": "Sweet and savory sauces, relishes, spreads, and seasonings"
-						}
-					},
-					{
-						"ProductID": 5,
-						"ProductName": "Chef Anton's Gumbo Mix",
-						"SupplierID": 2,
-						"CategoryID": 2,
-						"QuantityPerUnit": "36 boxes",
-						"UnitPrice": 21.3500,
-						"UnitsInStock": 0,
-						"UnitsOnOrder": 0,
-						"ReorderLevel": 0,
-						"Discontinued": true,
-						"Category": {
+							"QuantityPerUnit": "48 - 6 oz jars",
+							"UnitPrice": 22.0000,
+							"UnitsInStock": 53,
+							"UnitsOnOrder": 0,
+							"ReorderLevel": 0,
+							"Discontinued": false,
+							"Category": {
+								"CategoryID": 2,
+								"CategoryName": "Condiments",
+								"Description": "Sweet and savory sauces, relishes, spreads, and seasonings"
+							}
+						},
+						{
+							"ProductID": 5,
+							"ProductName": "Chef Anton's Gumbo Mix",
+							"SupplierID": 2,
 							"CategoryID": 2,
-							"CategoryName": "Condiments",
-							"Description": "Sweet and savory sauces, relishes, spreads, and seasonings"
-						}
-					},
-					{
-						"ProductID": 6,
-						"ProductName": "Grandma's Boysenberry Spread",
-						"SupplierID": 3,
-						"CategoryID": 2,
-						"QuantityPerUnit": "12 - 8 oz jars",
-						"UnitPrice": 25.0000,
-						"UnitsInStock": 120,
-						"UnitsOnOrder": 0,
-						"ReorderLevel": 25,
-						"Discontinued": false,
-						"Category": {
+							"QuantityPerUnit": "36 boxes",
+							"UnitPrice": 21.3500,
+							"UnitsInStock": 0,
+							"UnitsOnOrder": 0,
+							"ReorderLevel": 0,
+							"Discontinued": true,
+							"Category": {
+								"CategoryID": 2,
+								"CategoryName": "Condiments",
+								"Description": "Sweet and savory sauces, relishes, spreads, and seasonings"
+							}
+						},
+						{
+							"ProductID": 6,
+							"ProductName": "Grandma's Boysenberry Spread",
+							"SupplierID": 3,
 							"CategoryID": 2,
-							"CategoryName": "Condiments",
-							"Description": "Sweet and savory sauces, relishes, spreads, and seasonings"
-						}
-					},
-					{
-						"ProductID": 7,
-						"ProductName": "Uncle Bob's Organic Dried Pears",
-						"SupplierID": 3,
-						"CategoryID": 7,
-						"QuantityPerUnit": "12 - 1 lb pkgs.",
-						"UnitPrice": 30.0000,
-						"UnitsInStock": 15,
-						"UnitsOnOrder": 0,
-						"ReorderLevel": 10,
-						"Discontinued": false,
-						"Category": {
+							"QuantityPerUnit": "12 - 8 oz jars",
+							"UnitPrice": 25.0000,
+							"UnitsInStock": 120,
+							"UnitsOnOrder": 0,
+							"ReorderLevel": 25,
+							"Discontinued": false,
+							"Category": {
+								"CategoryID": 2,
+								"CategoryName": "Condiments",
+								"Description": "Sweet and savory sauces, relishes, spreads, and seasonings"
+							}
+						},
+						{
+							"ProductID": 7,
+							"ProductName": "Uncle Bob's Organic Dried Pears",
+							"SupplierID": 3,
 							"CategoryID": 7,
-							"CategoryName": "Produce",
-							"Description": "Dried fruit and bean curd"
-						}
-					},
-					{
-						"ProductID": 8,
-						"ProductName": "Northwoods Cranberry Sauce",
-						"SupplierID": 3,
-						"CategoryID": 2,
-						"QuantityPerUnit": "12 - 12 oz jars",
-						"UnitPrice": 40.0000,
-						"UnitsInStock": 6,
-						"UnitsOnOrder": 0,
-						"ReorderLevel": 0,
-						"Discontinued": false,
-						"Category": {
+							"QuantityPerUnit": "12 - 1 lb pkgs.",
+							"UnitPrice": 30.0000,
+							"UnitsInStock": 15,
+							"UnitsOnOrder": 0,
+							"ReorderLevel": 10,
+							"Discontinued": false,
+							"Category": {
+								"CategoryID": 7,
+								"CategoryName": "Produce",
+								"Description": "Dried fruit and bean curd"
+							}
+						},
+						{
+							"ProductID": 8,
+							"ProductName": "Northwoods Cranberry Sauce",
+							"SupplierID": 3,
 							"CategoryID": 2,
-							"CategoryName": "Condiments",
-							"Description": "Sweet and savory sauces, relishes, spreads, and seasonings"
-						}
-					},
-					{
-						"ProductID": 9,
-						"ProductName": "Mishi Kobe Niku",
-						"SupplierID": 4,
-						"CategoryID": 6,
-						"QuantityPerUnit": "18 - 500 g pkgs.",
-						"UnitPrice": 97.0000,
-						"UnitsInStock": 29,
-						"UnitsOnOrder": 0,
-						"ReorderLevel": 0,
-						"Discontinued": true,
-						"Category": {
+							"QuantityPerUnit": "12 - 12 oz jars",
+							"UnitPrice": 40.0000,
+							"UnitsInStock": 6,
+							"UnitsOnOrder": 0,
+							"ReorderLevel": 0,
+							"Discontinued": false,
+							"Category": {
+								"CategoryID": 2,
+								"CategoryName": "Condiments",
+								"Description": "Sweet and savory sauces, relishes, spreads, and seasonings"
+							}
+						},
+						{
+							"ProductID": 9,
+							"ProductName": "Mishi Kobe Niku",
+							"SupplierID": 4,
 							"CategoryID": 6,
-							"CategoryName": "Meat/Poultry",
-							"Description": "Prepared meats"
-						}
-					},
-					{
-						"ProductID": 10,
-						"ProductName": "Ikura",
-						"SupplierID": 4,
-						"CategoryID": 8,
-						"QuantityPerUnit": "12 - 200 ml jars",
-						"UnitPrice": 31.0000,
-						"UnitsInStock": 31,
-						"UnitsOnOrder": 0,
-						"ReorderLevel": 0,
-						"Discontinued": false,
-						"Category": {
+							"QuantityPerUnit": "18 - 500 g pkgs.",
+							"UnitPrice": 97.0000,
+							"UnitsInStock": 29,
+							"UnitsOnOrder": 0,
+							"ReorderLevel": 0,
+							"Discontinued": true,
+							"Category": {
+								"CategoryID": 6,
+								"CategoryName": "Meat/Poultry",
+								"Description": "Prepared meats"
+							}
+						},
+						{
+							"ProductID": 10,
+							"ProductName": "Ikura",
+							"SupplierID": 4,
 							"CategoryID": 8,
-							"CategoryName": "Seafood",
-							"Description": "Seaweed and fish"
+							"QuantityPerUnit": "12 - 200 ml jars",
+							"UnitPrice": 31.0000,
+							"UnitsInStock": 31,
+							"UnitsOnOrder": 0,
+							"ReorderLevel": 0,
+							"Discontinued": false,
+							"Category": {
+								"CategoryID": 8,
+								"CategoryName": "Seafood",
+								"Description": "Seaweed and fish"
+							}
 						}
-					}];
+					];//products
 
 					var InnerCommandCell = Vue.component("innercommandcell-component", {
 						props: {
@@ -367,17 +393,48 @@ export default {
 								console.log("innerCancelDiscardHandler: ", this.dataItem); 
 							},
 						}
-					});
+					});//InnerCommandCell
+
+					var InnerDropDownCell = Vue.component('innerdropdowncell-component', {
+						props: {
+							field: String,
+							dataItem: Object,
+							format: String,
+							className: String,
+							columnIndex: Number,
+							columnsCount: Number,
+							rowType: String,
+							level: Number,
+							expanded: Boolean,
+							editor: String
+						},
+
+						template: `<td v-if="!dataItem.inEdit" :class="className">{{ dataItem[field]}}</td>
+										<td v-else><select class="k-textbox" @change="change">
+										<option>True</option>
+										<option>False</option>
+									</select></td>`,
+
+						methods: {
+							change(e) {
+								this.$emit('change', e, e.target.value);
+							}
+						}
+					});//InnerDropDownCell
+
 					return {
+						updatedInnerData: [],
 						columns: [
 							{ field: 'ProductID', editable: false, title: 'ID', width: '50px' },
 							{ field: 'ProductName', title: 'Name' },
-							{ field: 'FirstOrderedOn', editor: 'date', title: 'First Ordered', format: '{0:d}' },
+							{ field: 'Discontinued', title: 'ValidForm', cell: InnerDropDownCell },
+							{ field: 'QuantityPerUnit', title: 'Quantity'},
+							{ field: 'UnitPrice', title: 'Price'},
 							{ cell: InnerCommandCell, width: '180px' }
 						],
 						products: products
 					}
-				},
+				},//data()INNER
 				computed: {
 					getFilteredProducts() {
 						const result = filterBy(this.products, {field: 'Category.CategoryID', operator: 'eq', value: this.dataItem.CategoryID});
@@ -387,6 +444,9 @@ export default {
 					hasItemsInEdit() {
 						return this.products.filter(p => p.inEdit).length > 0;
 					}
+				},
+				mounted () {
+					this.updatedInnerData = JSON.parse(JSON.stringify(this.products));
 				},
 				methods: {
 					update(data, item, remove) {
@@ -427,6 +487,12 @@ export default {
 							console.log(" else itemChange set: ", e.dataItem, e.field, e.value)
 						}
 					},
+					insert() {
+						const dataItem = { inEdit: true, Discontinued: false };
+						const newproducts = this.products.slice();
+						newproducts.unshift(dataItem);
+						Vue.set(this, "products", newproducts);
+					},
 					edit: function (e) {
 						console.log("prosledjeno u edit: ", e)
 						Vue.set(e.dataItem, 'inEdit', true);
@@ -440,21 +506,43 @@ export default {
 
 						Vue.set(this.products, index, this.update(this.products.slice(), item));
 						Vue.set(this.products[index], 'inEdit', undefined);
+						this.updatedInnerData = JSON.parse(JSON.stringify(this.products));
 					},
 					cancel(e) {
 						console.log("prosledjeno u cancel: ", e)
 						if (e.dataItem.ProductID) {
-							let originalItem = this.products.find(p => p.ProductID === e.dataItem.ProductID);
-							let index = this.products.findIndex(p => p.ProductID === originalItem.ProductID);
+							let originalItem = this.updatedInnerData.find(p => p.ProductID === e.dataItem.ProductID);
+							let index = this.updatedInnerData.findIndex(p => p.ProductID === originalItem.ProductID);
 
 							Vue.set(originalItem, 'inEdit', undefined);
 							Vue.set(this.products, index, originalItem);
 						} else {
 							this.update(this.products, e.dataItem, true);
 						}
+					},
+					cancelChanges () {
+						let editedItems = this.updatedInnerData.filter(p => p.inEdit === true);
+						if(editedItems.length){
+							editedItems.forEach(
+								item => {
+									Vue.set(item, 'inEdit', undefined);
+							});
+						}
+						Vue.set(this, 'products', this.updatedInnerData.slice());
 					}
 				}
-			}),
+			}),//CellTemplate INNER
+			/*OUTER*/
+			categories: [
+				{CategoryID: 1, CategoryName: 'Beverages', "Discontinued": false,},
+				{CategoryID: 2, CategoryName: 'Condiments', "Discontinued": false,},
+				{CategoryID: 3, CategoryName: 'Confections', "Discontinued": false,},
+				{CategoryID: 4, CategoryName: 'Dairy Products', "Discontinued": false,},
+				{CategoryID: 5, CategoryName: 'Grains/Cereals', "Discontinued": true,},
+				{CategoryID: 6, CategoryName: 'Meat/Poultry', "Discontinued": false,},
+				{CategoryID: 7, CategoryName: 'Produce', "Discontinued": false,},
+				{CategoryID: 8, CategoryName: 'Seafood', "Discontinued": false,}
+			],
 			updatedData: [],
 			columns: [
 				{ field: 'CategoryID', title: 'ID', width: '50px' },
@@ -462,8 +550,8 @@ export default {
 				{ field: 'Discontinued', title: 'Discontinued', cell: OuterDropDownCell },
 				{ cell: OuterCommandCell, width: '180px' }
 			]
-		};
-	},
+		};//return INNER
+	},//data() OUTER
 	computed: {
 		hasItemsInEdit() {
 			return this.categories.filter(p => p.inEdit).length > 0;
@@ -556,13 +644,13 @@ export default {
 			if(editedItems.length){
 				editedItems.forEach(
 					item => {
-					Vue.set(item, 'inEdit', undefined);
+						Vue.set(item, 'inEdit', undefined);
 				});
 			}
 			Vue.set(this, 'categories', this.updatedData.slice());
 		}
 	}
-}
+}/*export default*/
 </script>
 
 <style scoped>
