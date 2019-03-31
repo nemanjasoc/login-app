@@ -6,19 +6,32 @@
 		</div>
 
 		<kendo-grid
-			ref="grid"
-			:style="{height: '500px', width: '100%'}"
-			:data-items="categories"
-			:detail="cellTemplate"
-			:edit-field="'inEdit'"
-			@edit="edit"
-			@remove="remove"
-			@save="save"
-			@cancel="cancel"
-			@itemchange="itemChange"
-			:columns="columns"
-			@expandchange="expandChange"
-			:expand-field="'expanded'">
+				ref="grid"
+				:style="{height: '500px', width: '100%'}"
+				:data-items="categories"
+				:detail="cellTemplate"
+				:edit-field="'inEdit'"
+				@edit="edit"
+				@remove="remove"
+				@save="save"
+				@cancel="cancel"
+				@itemchange="itemChange"
+				:columns="columns"
+				@expandchange="expandChange"
+				:expand-field="'expanded'">
+				<grid-toolbar>
+					<button title="Add new"
+							class="k-button k-primary"
+							@click='insert' >
+							Add new
+					</button>
+					<button v-if="hasItemsInEdit"
+							title="Cancel current changes"
+							class="k-button"
+							@click="cancelChanges">
+							Cancel current changes
+					</button>
+				</grid-toolbar>
 				<grid-norecords>
 					There is no data available custom
 				</grid-norecords>
@@ -32,6 +45,33 @@ import { process, filterBy } from '@progress/kendo-data-query'
 
 export default {
 	data() {
+		const OuterDropDownCell = Vue.component('outerdropdowncell-component', {
+			props: {
+				field: String,
+				dataItem: Object,
+				format: String,
+				className: String,
+				columnIndex: Number,
+				columnsCount: Number,
+				rowType: String,
+				level: Number,
+				expanded: Boolean,
+				editor: String
+			},
+
+			template: `<td v-if="!dataItem.inEdit" :class="className">{{ dataItem[field]}}</td>
+							<td v-else><select class="k-textbox" @change="change">
+							<option>True</option>
+							<option>False</option>
+						</select></td>`,
+
+			methods: {
+				change(e) {
+					this.$emit('change', e, e.target.value);
+				}
+			}
+		});
+
 		const OuterCommandCell = Vue.component("outercommandcell-component", {
 			props: {
 				field: String,
@@ -415,9 +455,11 @@ export default {
 					}
 				}
 			}),
+			updatedData: [],
 			columns: [
 				{ field: 'CategoryID', title: 'ID', width: '50px' },
 				{ field: 'CategoryName', title: 'Name' },
+				{ field: 'Discontinued', title: 'Discontinued', cell: OuterDropDownCell },
 				{ cell: OuterCommandCell, width: '180px' }
 			]
 		};
@@ -426,7 +468,10 @@ export default {
 		hasItemsInEdit() {
 			return this.categories.filter(p => p.inEdit).length > 0;
 		}
-    },
+	},
+	mounted () {
+		this.updatedData = JSON.parse(JSON.stringify(this.categories));
+	},
 	methods: {
 		signOut() {
 			this.$router.push('/login');
@@ -458,6 +503,7 @@ export default {
 			console.log('prosledjeno u remove: ', e);
 			e.dataItem.inEdit = undefined;
 			this.update(this.categories, e.dataItem, true);
+			this.update(this.updatedData, e.dataItem, true);
 			this.categories = this.categories.slice();
 		},
 		itemChange: function (e) {
@@ -472,6 +518,12 @@ export default {
 				console.log(" else itemChange set: ", e.dataItem, e.field, e.value)
 			}
 		},
+		insert() {
+			const dataItem = { inEdit: true, Discontinued: false };
+			const newcategories = this.categories.slice();
+			newcategories.unshift(dataItem);
+			Vue.set(this, "categories", newcategories);
+		},
 		edit: function (e) {
 			console.log("prosledjeno u edit: ", e)
 			Vue.set(e.dataItem, 'inEdit', true);
@@ -485,18 +537,29 @@ export default {
 
 			Vue.set(this.categories, index, this.update(this.categories.slice(), item));
 			Vue.set(this.categories[index], 'inEdit', undefined);
+			this.updatedData = JSON.parse(JSON.stringify(this.categories));
 		},
 		cancel(e) {
 			console.log("prosledjeno u cancel: ", e)
 			if (e.dataItem.CategoryID) {
-				let originalItem = this.categories.find(p => p.CategoryID === e.dataItem.CategoryID);
-				let index = this.categories.findIndex(p => p.CategoryID === originalItem.CategoryID);
+				let originalItem = this.updatedData.find(p => p.CategoryID === e.dataItem.CategoryID);
+				let index = this.updatedData.findIndex(p => p.CategoryID === originalItem.CategoryID);
 
 				Vue.set(originalItem, 'inEdit', undefined);
 				Vue.set(this.categories, index, originalItem);
 			} else {
 				this.update(this.categories, e.dataItem, true);
 			}
+		},
+		cancelChanges () {
+			let editedItems = this.updatedData.filter(p => p.inEdit === true);
+			if(editedItems.length){
+				editedItems.forEach(
+					item => {
+					Vue.set(item, 'inEdit', undefined);
+				});
+			}
+			Vue.set(this, 'categories', this.updatedData.slice());
 		}
 	}
 }
