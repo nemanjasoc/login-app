@@ -2,14 +2,11 @@ import Vue from 'vue'
 import VueRouter from 'vue-router';
 import App from './App.vue'
 import { routes } from './routes';
+import store from './store';
 
 import '@progress/kendo-ui'
 import '@progress/kendo-theme-default/dist/all.css'
 import { Grid, GridToolbar, GridNoRecords } from '@progress/kendo-vue-grid'
-
-new Vue({
-   el: '#app' //id of the container
-})
 
 Vue.use(VueRouter);
 
@@ -25,5 +22,6 @@ const router = new VueRouter({
 new Vue({
   el: '#app',
   router,
+  store,
   render: h => h(App)
 })

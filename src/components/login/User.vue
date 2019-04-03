@@ -23,27 +23,26 @@ export default {
 		}
 	},
 	mounted() {
-		if (localStorage.username) {
-			this.username = localStorage.username;
+		// If username is not defined in localStorage, set default username
+		if (!localStorage.username) {
+			localStorage.setItem('username', 'test@test');
 		}
-		if (localStorage.password) {
-			this.password = localStorage.password;
+		// If password is not defined in localStorage, set default password
+		if (!localStorage.password) {
+			localStorage.setItem('password', 'test');
 		}
 	},
 	methods: {
 		login() {
-			if (localStorage.username == this.username) {
-				localStorage.username = this.username;
-			} 
-			else {
+			// Check if typed username matches username from localStorage
+			if (localStorage.username != this.username) {
 				return alert("Wrong username. Try again!");
 			}
-			if (localStorage.password == this.password) {
-				localStorage.password = this.password;
-			} 
-			else {
+			// Check if typed password matches password from localStorage
+			if (localStorage.password != this.password) {
 				return alert("Wrong password. Try again!");
 			}
+			this.$store.commit('setAuth');
 			this.$router.push('/grid');
 			this.username = '';
 			this.password = '';

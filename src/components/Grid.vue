@@ -522,6 +522,7 @@ export default {
 	},
 	methods: {
 		signOut() {
+			this.$store.commit('resetAuth');
 			this.$router.push('/login');
 		},
 		expandChange(event) {
