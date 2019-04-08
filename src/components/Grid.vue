@@ -2,7 +2,7 @@
 	<div style="width:100%">
 		<div class="top-container">
 			<h1>Edit your data</h1>
-			<div class="sign-out-button" @click="signOut">Sign out</div>
+			<div class="log-out-button" @click="logOut">Logout</div>
 		</div>
 
 		<kendo-grid
@@ -135,31 +135,15 @@ export default {
 				},
 
 				template: `<kendo-grid
-							:style="{height: 'auto'}" 
-							:data-items="getFilteredProducts"
-							:edit-field="'inEdit'"
-							@edit="edit"
-							@remove="remove"
-							@save="save"
-							@cancel="cancel"
-							@itemchange="itemChange"
-							:columns="columns">
-								<grid-toolbar>
-									<button title="Add new"
-										class="k-button k-primary"
-										@click='insert' >
-										Add new
-									</button>
-									<button v-if="hasItemsInEdit"
-										title="Cancel current changes"
-										class="k-button"
-										@click="cancelChanges">
-										Cancel current changes
-									</button>
-								</grid-toolbar>
-								<grid-norecords>
-									There is no data available custom
-								</grid-norecords>
+								:style="{height: 'auto'}" 
+								:data-items="getFilteredProducts"
+								:edit-field="'inEdit'"
+								@edit="edit"
+								@remove="remove"
+								@save="save"
+								@cancel="cancel"
+								@itemchange="itemChange"
+								:columns="columns">
 							</kendo-grid>`,
 
 				data () {
@@ -398,7 +382,6 @@ export default {
 				computed: {
 					getFilteredProducts() {
 						const result = filterBy(this.products, {field: 'Category.CategoryID', operator: 'eq', value: this.dataItem.CategoryID});
-						console.log("getFilteredProducts result: ", result);
 						return result;
 					},
 					hasItemsInEdit() {
@@ -410,7 +393,6 @@ export default {
 				},
 				methods: {
 					update(data, item, remove) {
-						console.log('prosledjeno u update, data, item, remove: ', data, item, remove);
 						let updated;
 						let index = data.findIndex(p => item.ProductID && p.ProductID === item.ProductID);
 						if (index >= 0) {
@@ -430,36 +412,24 @@ export default {
 						return data[index];
 					},
 					remove(e) {
-						console.log('prosledjeno u remove: ', e);
 						e.dataItem.inEdit = undefined;
 						this.update(this.products, e.dataItem, true);
+						this.update(this.updatedInnerData, e.dataItem, true);
 						this.products = this.products.slice();
 					},
 					itemChange: function (e) {
-						console.log("prosledjeno u itemChang: ", e)
 						if (e.dataItem.ProductID) {
 							let item = this.products.find(p => p.ProductID === e.dataItem.ProductID);
 							let index = this.products.findIndex(p => p.ProductID === item.ProductID);
 							Vue.set(item, e.field, e.value);
-							console.log("itemChange set: ", item, e.field, e.value)
 						} else {
 							Vue.set(e.dataItem, e.field, e.value);
-							console.log(" else itemChange set: ", e.dataItem, e.field, e.value)
 						}
 					},
-					insert() {
-						const dataItem = { inEdit: true, Discontinued: false };
-						const newproducts = this.products.slice();
-						newproducts.unshift(dataItem);
-						Vue.set(this, "products", newproducts);
-					},
 					edit: function (e) {
-						console.log("prosledjeno u edit: ", e)
 						Vue.set(e.dataItem, 'inEdit', true);
-						console.log("edit set: ", e.dataItem, 'inEdit', true)
 					},
 					save: function(e) {
-						console.log("prosledjeno u save: ", e)
 						Vue.set(e.dataItem, 'inEdit', undefined);
 						let item = this.products.find(p => p.ProductID === e.dataItem.ProductID);
 						let index = this.products.findIndex(p => p.ProductID === item.ProductID);
@@ -469,7 +439,6 @@ export default {
 						this.updatedInnerData = JSON.parse(JSON.stringify(this.products));
 					},
 					cancel(e) {
-						console.log("prosledjeno u cancel: ", e)
 						if (e.dataItem.ProductID) {
 							let originalItem = this.updatedInnerData.find(p => p.ProductID === e.dataItem.ProductID);
 							let index = this.updatedInnerData.findIndex(p => p.ProductID === originalItem.ProductID);
@@ -479,16 +448,6 @@ export default {
 						} else {
 							this.update(this.products, e.dataItem, true);
 						}
-					},
-					cancelChanges () {
-						let editedItems = this.updatedInnerData.filter(p => p.inEdit === true);
-						if(editedItems.length){
-							editedItems.forEach(
-								item => {
-									Vue.set(item, 'inEdit', undefined);
-							});
-						}
-						Vue.set(this, 'products', this.updatedInnerData.slice());
 					}
 				}
 			}),//CellTemplate INNER
@@ -521,7 +480,7 @@ export default {
 		this.updatedData = JSON.parse(JSON.stringify(this.categories));
 	},
 	methods: {
-		signOut() {
+		logOut() {
 			this.$store.commit('resetAuth');
 			this.$router.push('/login');
 		},
@@ -529,7 +488,6 @@ export default {
 			Vue.set(event.dataItem, event.target.$props.expandField, event.value);
 		},
 		update(data, item, remove) {
-			console.log('prosledjeno u update, data, item, remove: ', data, item, remove);
 			let updated;
 			let index = data.findIndex(p => item.CategoryID && p.CategoryID === item.CategoryID);
 			if (index >= 0) {
@@ -549,22 +507,18 @@ export default {
 			return data[index];
 		},
 		remove(e) {
-			console.log('prosledjeno u remove: ', e);
 			e.dataItem.inEdit = undefined;
 			this.update(this.categories, e.dataItem, true);
 			this.update(this.updatedData, e.dataItem, true);
 			this.categories = this.categories.slice();
 		},
 		itemChange: function (e) {
-			console.log("prosledjeno u itemChang: ", e)
 			if (e.dataItem.CategoryID) {
 				let item = this.categories.find(p => p.CategoryID === e.dataItem.CategoryID);
 				let index = this.categories.findIndex(p => p.CategoryID === item.CategoryID);
 				Vue.set(item, e.field, e.value);
-				console.log("itemChange set: ", item, e.field, e.value)
 			} else {
 				Vue.set(e.dataItem, e.field, e.value);
-				console.log(" else itemChange set: ", e.dataItem, e.field, e.value)
 			}
 		},
 		insert() {
@@ -574,12 +528,9 @@ export default {
 			Vue.set(this, "categories", newcategories);
 		},
 		edit: function (e) {
-			console.log("prosledjeno u edit: ", e)
 			Vue.set(e.dataItem, 'inEdit', true);
-			console.log("edit set: ", e.dataItem, 'inEdit', true)
 		},
 		save: function(e) {
-			console.log("prosledjeno u save: ", e)
 			Vue.set(e.dataItem, 'inEdit', undefined);
 			let item = this.categories.find(p => p.CategoryID === e.dataItem.CategoryID);
 			let index = this.categories.findIndex(p => p.CategoryID === item.CategoryID);
@@ -589,7 +540,6 @@ export default {
 			this.updatedData = JSON.parse(JSON.stringify(this.categories));
 		},
 		cancel(e) {
-			console.log("prosledjeno u cancel: ", e)
 			if (e.dataItem.CategoryID) {
 				let originalItem = this.updatedData.find(p => p.CategoryID === e.dataItem.CategoryID);
 				let index = this.updatedData.findIndex(p => p.CategoryID === originalItem.CategoryID);
@@ -614,43 +564,34 @@ export default {
 }/*export default*/
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import 'src/scss/mixins';
+@import 'src/scss/variables';
+
 .top-container {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
+	@include flexbox-space-between;
+	align-items: $alignment-center;
 }
 
-.sign-out-button {
+.log-out-button {
 	padding: 0 20px;
-	background-color: #57b846;
-	border-radius: 25px;
+	background-color: $green;
+	border-radius: $base-border-radius;
 	cursor: pointer;
-	font-size: 18px;
+	font-size: $base-font-size;
 	color: white;
-	height: 50px;
-	-ms-flex-align: center;
-	align-items: center;
-	display: flex;
-	justify-content: center;
-	font-weight: 700;
-	box-shadow: 0 10px 30px 0px rgba(87, 184, 70, 0.5);
-	-moz-box-shadow: 0 10px 30px 0px rgba(87, 184, 70, 0.5);
-	-webkit-box-shadow: 0 10px 30px 0px rgba(87, 184, 70, 0.5);
-	-o-box-shadow: 0 10px 30px 0px rgba(87, 184, 70, 0.5);
-	-ms-box-shadow: 0 10px 30px 0px rgba(87, 184, 70, 0.5);
-	-webkit-transition: all 0.4s;
-	-o-transition: all 0.4s;
-	-moz-transition: all 0.4s;
-	transition: all 0.4s;
-}
+	height: $base-height + 6;
+	text-align: $alignment-center;
+	align-items: $alignment-center;
+	@include flexbox-center;
+	font-weight: $thin;
+	@include button-shadow-vendors;
+	@include button-transition-vendors;
 
-.sign-out-button:hover {
-	background: black;
-	box-shadow: 0 10px 30px 0px black;
-	-moz-box-shadow: 0 10px 30px 0px black;
-	-webkit-box-shadow: 0 10px 30px 0px black;
-	-o-box-shadow: 0 10px 30px 0px black;
-	-ms-box-shadow: 0 10px 30px 0px black;
+
+	&:hover {
+		background: black;
+		@include button-hover-vendors;
+	}
 }
 </style>

@@ -2,11 +2,11 @@
 	<div class="user-wrapper">
 		<form action="">
 			<div class="wrap-username">
-				<input type="username" id="username" v-model="username" required/>
+				<input type="username" id="username" v-model="username" @keyup.enter="login" required/>
 				<label for="username">Username</label>
 			</div>
 			<div class="wrap-password">
-				<input type="password" id="password" v-model="password" required/>
+				<input type="password" id="password" v-model="password" @keyup.enter="login" required/>
 				<label for="password">Password</label>
 			</div>
 		</form>
@@ -51,99 +51,79 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import 'src/scss/mixins';
+@import 'src/scss/variables';
+
 .user-wrapper {
-	margin-top: 85px;
+	padding-top: $base-padding-top;
 }
 
-.wrap-username {
-	position: relative;
-	margin-bottom: 35px;
-	position: relative;
-	height: 44px;
-	line-height: 44px;
-}
-
+.wrap-username,
 .wrap-password {
-	position: relative;
-	margin-bottom: 35px;
-	position: relative;
-	height: 44px;
-	line-height: 44px;
+	position: $position-relative;
+	margin-bottom: $margin-bottom-user;
+	@include height;
 }
 
 label {
-	font-family: 'Poppins', sans-serif;
-	position: absolute;
+	font-family: $font-family;
+	position: $position-absolute;
 	top: 0;
 	left: 0;
 	width: 100%;
-	color: #d3d3d3;
+	color: $gray;
 	transition: 0.2s all;
 	cursor: text;
 }
 
 input {
-	font-family: 'Poppins', sans-serif;
+	font-family: $font-family;
+	font-weight: $thinner;
 	width: 100%;
 	border: 0;
 	outline: 0;
 	padding: 0.5rem 0;
-	border-bottom: 2px solid #d3d3d3;
+	border-bottom: 2px solid $gray;
 	box-shadow: none;
-	color: #555;
-	font-size: 18px;
-	-webkit-transition: border-bottom 0.4s ease-out;
-	-o-transition: border-bottom 0.4s ease-out;
-	-moz-transition: border-bottom 0.4s ease-out;
-	transition: border-bottom 0.4s ease-out;
-}
+	color: #555555;
+	font-size: $base-font-size;
+	@include transition-border-bottom-vendors;
 
-input:invalid {
-	outline: 0;
-}
+	&:invalid {
+		outline: 0;
+	}
 
-input:focus,
-input:valid {
-	border-color: #57b846;
-}
+	&:focus,
+	&:valid {
+		border-color: $green;
+	}
 
-input:focus~label,
-input:valid~label {
-	font-size: 14px;
-	top: -24px;
-	color: #57b846;
+	&:focus~label,
+	&:valid~label {
+		font-size: $base-font-size -4;
+		top: -24px;
+		color: $green;
+	}
 }
 
 .login-button {
-	background-color: #57b846;
-	border-radius: 25px;
+	background-color: $green;
+	border-radius: $base-border-radius;
 	cursor: pointer;
-	font-size: 18px;
+	font-size: $base-font-size;
 	color: white;
-	height: 50px;
-	-ms-flex-align: center;
-	align-items: center;
-	display: flex;
-	justify-content: center;
-	font-weight: 700;
-	box-shadow: 0 10px 30px 0px rgba(87, 184, 70, 0.5);
-	-moz-box-shadow: 0 10px 30px 0px rgba(87, 184, 70, 0.5);
-	-webkit-box-shadow: 0 10px 30px 0px rgba(87, 184, 70, 0.5);
-	-o-box-shadow: 0 10px 30px 0px rgba(87, 184, 70, 0.5);
-	-ms-box-shadow: 0 10px 30px 0px rgba(87, 184, 70, 0.5);
-	-webkit-transition: all 0.4s;
-	-o-transition: all 0.4s;
-	-moz-transition: all 0.4s;
-	transition: all 0.4s;
-}
+	height: $base-height + 6;
+	text-align: $alignment-center;
+	align-items: $alignment-center;
+	@include flexbox-center;
+	font-weight: $thin;
+	@include button-shadow-vendors;
+	@include button-transition-vendors;
 
-.login-button:hover {
-	background: black;
-	box-shadow: 0 10px 30px 0px black;
-	-moz-box-shadow: 0 10px 30px 0px black;
-	-webkit-box-shadow: 0 10px 30px 0px black;
-	-o-box-shadow: 0 10px 30px 0px black;
-	-ms-box-shadow: 0 10px 30px 0px black;
+	&:hover {
+		background: black;
+		@include button-hover-vendors;
+	}
 }
 </style>

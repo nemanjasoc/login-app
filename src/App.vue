@@ -1,7 +1,7 @@
 <template>
-  <div id="app">
-    <router-view></router-view>
-  </div>
+	<div id="app">
+		<router-view></router-view>
+	</div>
 </template>
 
 <script>
@@ -10,13 +10,13 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+@import 'src/scss/mixins';
+@import 'src/scss/variables';
+
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  display: flex;
-  justify-content: center;
-  padding: 30px 0;
+	@include main-font-family;
+	@include flexbox-center;
+	padding-top: $base-padding-top;
 }
 </style>

@@ -4,7 +4,7 @@ import Grid from './components/Grid.vue';
 import store from './store';
 
 export const routes = [
-	{
+  {
     path: '/login',
     component: Login,
     beforeEnter: function (to, from, next) {
@@ -13,10 +13,10 @@ export const routes = [
         next({ path: '/grid' })
       }
 
-      next()
+        next()
     }
   },
-	{
+  {
     path: '/grid',
     component: Grid,
     beforeEnter: function (to, from, next) {
@@ -25,10 +25,10 @@ export const routes = [
         next({ path: '/login' })
       }
 
-      next()
+        next()
     }
   },
-	{
+  {
     path: '*',
     redirect: '/login'
   }

@@ -1,8 +1,8 @@
 <template>
-  <div class="wrapper">
+	<div class="wrapper">
 		<app-header></app-header>
 		<app-user></app-user>
-  </div>
+	</div>
 </template>
 
 <script>
@@ -17,10 +17,11 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+@import 'src/scss/mixins';
+
 .wrapper {
-	display: flex;
-	flex-direction: column;
+	@include flexbox-column;
 	width: 390px;
 }
 </style>

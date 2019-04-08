@@ -1,9 +1,9 @@
 <template>
 	<div class="header-wrapper">
 		<div class="title">Welcome</div>
-	    <div class="user">
-	    	<i class="fa fa-user-circle" aria-hidden="true"></i>
-	    </div>
+		<div class="user">
+			<i class="fa fa-user-circle" aria-hidden="true"></i>
+		</div>
 	</div>
 </template>
 
@@ -11,32 +11,33 @@
 	
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import 'src/scss/mixins';
+@import 'src/scss/variables';
+
 .header-wrapper {
-	display: flex;
-	justify-content: center;
+	@include flexbox-center;
 	flex-direction: column;
 }
 
 .title {
 	display: block;
-	font-family: 'Poppins', sans-serif;
-	font-weight: 900;
-	font-size: 39px;
+	font-family: $font-family;
+	font-weight: $thick;
+	font-size: $base-font-size + 21;
 	color: #333;
-	text-align: center;
-	padding-bottom: 35px;
+	text-align: $alignment-center;
+	padding-bottom: $padding-bottom-header;
 }
 
 .user {
-	display: flex;
-	justify-content: center;
-	position: relative;
-	padding-bottom: 35px;
+	@include flexbox-center;
+	position: $position-relative;
+	padding-bottom: $padding-bottom-header;
 }
 
 .fa-user-circle {
-	position: absolute;
-	font-size: 60px;
+	position: $position-absolute;
+	font-size: $base-font-size + 42;
 }
 </style>
