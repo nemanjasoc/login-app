@@ -22,7 +22,7 @@
 				<grid-toolbar>
 					<button title="Add new"
 							class="k-button k-primary"
-							@click='insert' >
+							@click='insert'>
 							Add new
 					</button>
 					<button v-if="hasItemsInEdit"
@@ -322,19 +322,15 @@ export default {
 						methods: {
 							innerEditHandler: function() {
 								this.$emit('edit', this.dataItem);
-								console.log("innerEditHandler: ", this.dataItem); 
 							},
 							innerRemoveHandler: function() {
 								this.$emit('remove', this.dataItem);
-								console.log('innerRemoveHandler: ', this.dataItem); 
 							},
 							innerAddUpdateHandler: function() {
 								this.$emit('save', this.dataItem);
-								console.log('innerAddUpdateHandler', this.dataItem); 
 							},
 							innerCancelDiscardHandler: function() {
 								this.$emit('cancel', this.dataItem);
-								console.log("innerCancelDiscardHandler: ", this.dataItem); 
 							},
 						}
 					});//InnerCommandCell
@@ -587,7 +583,6 @@ export default {
 	font-weight: $thin;
 	@include button-shadow-vendors;
 	@include button-transition-vendors;
-
 
 	&:hover {
 		background: black;

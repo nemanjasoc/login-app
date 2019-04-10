@@ -1,6 +1,5 @@
 import Login from './components/Login.vue';
 import Grid from './components/Grid.vue';
-
 import store from './store';
 
 export const routes = [
