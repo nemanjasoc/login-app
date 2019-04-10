@@ -1,22 +1,22 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex);
 
-const store = new Vuex.Store({
-    state: {
-      auth: false
+export default new Vuex.Store({
+  plugins: [createPersistedState()],
+  state: {
+    auth: false
+  },
+  mutations: {
+    setAuth: function (state) {
+      console.log('setAuth')
+      state.auth = true
     },
-    mutations: {
-      setAuth: function (state) {
-        console.log('setAuth')
-        state.auth = true
-      },
-      resetAuth: function (state) {
-        console.log('resetAuth')
-        state.auth = false
-      }
+    resetAuth: function (state) {
+      console.log('resetAuth')
+      state.auth = false
     }
+  }
 });
-
-export default store
