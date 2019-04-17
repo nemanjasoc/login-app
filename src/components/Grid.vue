@@ -67,8 +67,8 @@ export default {
 						</select></td>`,
 
 			methods: {
-				change(e) {
-					this.$emit('change', e, e.target.value);
+				change(e) { 
+					this.$emit('change', e, e.target.value); 
 				}
 			}
 		});//OuterDropDownCell
@@ -114,16 +114,16 @@ export default {
 
 			methods: {
 				outerEditHandler: function() {
-					this.$emit('edit', this.dataItem);
+					this.$emit('edit', this.dataItem); 
 				},
 				outerRemoveHandler: function() {
-					this.$emit('remove', this.dataItem);
+					this.$emit('remove', this.dataItem); 
 				},
 				outerAddUpdateHandler: function() {
-					this.$emit('save', this.dataItem);
+					this.$emit('save', this.dataItem); 
 				},
 				outerCancelDiscardHandler: function() {
-					this.$emit('cancel', this.dataItem);
+					this.$emit('cancel', this.dataItem); 
 				}
 			}
 		});//OuterCommandCell
@@ -321,16 +321,16 @@ export default {
 
 						methods: {
 							innerEditHandler: function() {
-								this.$emit('edit', this.dataItem);
+								this.$emit('edit', this.dataItem); 
 							},
 							innerRemoveHandler: function() {
-								this.$emit('remove', this.dataItem);
+								this.$emit('remove', this.dataItem); 
 							},
 							innerAddUpdateHandler: function() {
-								this.$emit('save', this.dataItem);
+								this.$emit('save', this.dataItem); 
 							},
 							innerCancelDiscardHandler: function() {
-								this.$emit('cancel', this.dataItem);
+								this.$emit('cancel', this.dataItem); 
 							},
 						}
 					});//InnerCommandCell
@@ -369,45 +369,35 @@ export default {
 							{ field: 'ProductName', title: 'Name' },
 							{ field: 'Discontinued', title: 'ValidForm', cell: InnerDropDownCell },
 							{ field: 'QuantityPerUnit', title: 'Quantity'},
-							{ field: 'UnitPrice', title: 'Price'},
+							{ field: 'UnitPrice', title: 'Price', editor: 'numeric'},
 							{ cell: InnerCommandCell, width: '180px' }
 						],
 						products: products
 					}
 				},//data()INNER
 				computed: {
-					getFilteredProducts() {
+					getFilteredProducts() { 
 						const result = filterBy(this.products, {field: 'Category.CategoryID', operator: 'eq', value: this.dataItem.CategoryID});
 						return result;
-					},
-					hasItemsInEdit() {
-						return this.products.filter(p => p.inEdit).length > 0;
 					}
 				},
 				mounted () {
 					this.updatedInnerData = JSON.parse(JSON.stringify(this.products));
 				},
 				methods: {
-					update(data, item, remove) {
+					update(data, item, remove) { 
 						let updated;
-						let index = data.findIndex(p => item.ProductID && p.ProductID === item.ProductID);
+						let index = data.findIndex(p => item.ProductID && p.ProductID === item.ProductID); 
 						if (index >= 0) {
 							updated = Object.assign({}, item);
-							data[index] = updated;
-						} else {
-							let id = 1;
-							data.forEach(p => { if (p.ProductID) { id = Math.max(p.ProductID + 1, id); } });
-							updated = Object.assign({}, item, { ProductID: id });
-							data.unshift(updated);
-							index = 0;
+							data[index] = updated; 
 						}
-
 						if (remove) {
-							data = data.splice(index, 1);
+							data = data.splice(index, 1); 
 						}
 						return data[index];
 					},
-					remove(e) {
+					remove(e) { 
 						e.dataItem.inEdit = undefined;
 						this.update(this.products, e.dataItem, true);
 						this.update(this.updatedInnerData, e.dataItem, true);
@@ -423,7 +413,7 @@ export default {
 						}
 					},
 					edit: function (e) {
-						Vue.set(e.dataItem, 'inEdit', true);
+						Vue.set(e.dataItem, 'inEdit', true); 
 					},
 					save: function(e) {
 						Vue.set(e.dataItem, 'inEdit', undefined);
@@ -546,9 +536,9 @@ export default {
 				this.update(this.categories, e.dataItem, true);
 			}
 		},
-		cancelChanges () {
+		cancelChanges () { 
 			let editedItems = this.updatedData.filter(p => p.inEdit === true);
-			if(editedItems.length){
+			if (editedItems.length) {
 				editedItems.forEach(
 					item => {
 						Vue.set(item, 'inEdit', undefined);
